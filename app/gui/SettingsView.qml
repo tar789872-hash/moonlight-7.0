@@ -10,14 +10,56 @@ import SystemProperties 1.0
 
 Flickable {
     id: settingsPage
+    property int currentTab: 0
+
+    // TabBar Navigation
+    Rectangle {
+        id: tabRowContainer
+        width: parent.width
+        height: tabRow.height + 20
+        color: Qt.rgba(0, 0, 0, 0.8)
+        z: 10
+        anchors.top: parent.top
+        
+        Row {
+            id: tabRow
+            spacing: 15
+            padding: 10
+            anchors.centerIn: parent
+
+            Repeater {
+                model: ["วิดีโอและภาพ", "เสียงและไมค์", "ควบคุม", "แม่ข่าย", "ขั้นสูง"]
+                Button {
+                    text: modelData
+                    font.bold: true
+                    font.pointSize: 13
+                    font.family: "YouYuan"
+                    highlighted: settingsPage.currentTab === index
+                    onClicked: settingsPage.currentTab = index
+                    background: Rectangle {
+                        color: settingsPage.currentTab === index ? "#FFA5D2" : "#333333"
+                        radius: 8
+                    }
+                    contentItem: Text {
+                        text: parent.text
+                        font: parent.font
+                        color: settingsPage.currentTab === index ? "white" : "#AAAAAA"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+            }
+        }
+    }
+
     objectName: qsTr("Settings")
-    topMargin: 60
+    topMargin: 120
     signal languageChanged()
 
     boundsBehavior: Flickable.OvershootBounds
 
-    contentWidth: settingsColumn1.width > settingsColumn2.width ? settingsColumn1.width : settingsColumn2.width
-    contentHeight: settingsColumn1.height > settingsColumn2.height ? settingsColumn1.height : settingsColumn2.height
+    contentWidth: settingsPage.width
+    contentHeight: Math.max(settingsColumn1.height, settingsColumn2.height) + 120
 
     ScrollBar.vertical: ScrollBar {
         anchors {
@@ -118,17 +160,21 @@ Flickable {
     }
 
     Column {
-        padding: 10
-        id: settingsColumn1
-        width: settingsPage.width / 2
+        padding: 20
+        id: settingsColumn1\n        anchors.top: tabRowContainer.bottom\n        anchors.left: parent.left\n        anchors.right: parent.right
+        anchors.top: tabRowContainer.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        width: settingsPage.width - 40
         spacing: 15
         z: 1
 
         GroupBox {
             id: basicSettingsGroupBox
+        visible: settingsPage.currentTab === 0
             width: (parent.width - (parent.leftPadding + parent.rightPadding))
             padding: 12
-            title: "<b><font color=\"#FFA5D2\">⚙ " + qsTr("Basic Settings") + "</font></b>"
+            title: "<b><font color=\"#FFA5D2\">⚙ " + qsTr("ตั้งค่าพื้นฐาน") + "</font></b>"
             font {
                 family: "YouYuan"
                 bold: true
@@ -142,7 +188,7 @@ Flickable {
                 Label {
                     width: parent.width
                     id: resFPStitle
-                    text: qsTr("Resolution and FPS")
+                    text: qsTr("ความละเอียดและเฟรมเรต")
                     font.pointSize: 12
                     wrapMode: Text.Wrap
                 }
@@ -150,7 +196,7 @@ Flickable {
                 Label {
                     width: parent.width
                     id: resFPSdesc
-                    text: qsTr("Setting values too high for your PC or network connection may cause lag, stuttering, or errors.")
+                    text: qsTr("การตั้งค่าสูงเกินไปอาจทำให้เกิดอาการกระตุกหรือข้อผิดพลาดได้")
                     font.pointSize: 9
                     wrapMode: Text.Wrap
                 }
@@ -208,8 +254,8 @@ Flickable {
                                     break
                                 }
 
-                                addDetectedResolution(qsTr("Native"), screenRect)
-                                addDetectedResolution(qsTr("Native (Excluding Notch)"), safeAreaRect)
+                                addDetectedResolution(qsTr("ความละเอียดหน้าจอหลัก"), screenRect)
+                                addDetectedResolution(qsTr("ความละเอียดหน้าจอหลัก (ไม่รวมรอยบาก)"), safeAreaRect)
                             }
 
                             // Prune resolutions that are over the decoder's maximum
@@ -245,7 +291,7 @@ Flickable {
                             if (!index_set) {
                                 // We did not find a match. This must be a custom resolution.
                                 resolutionListModel.append({
-                                                               "text": qsTr("Custom")+" ("+StreamingPreferences.width+"x"+StreamingPreferences.height+")",
+                                                               "text": qsTr("กำหนดเอง")+" ("+StreamingPreferences.width+"x"+StreamingPreferences.height+")",
                                                                "video_width": ""+StreamingPreferences.width,
                                                                "video_height": ""+StreamingPreferences.height,
                                                                "is_custom": true
@@ -254,7 +300,7 @@ Flickable {
                             }
                             else {
                                 resolutionListModel.append({
-                                                               "text": qsTr("Custom"),
+                                                               "text": qsTr("กำหนดเอง"),
                                                                "video_width": "",
                                                                "video_height": "",
                                                                "is_custom": true
@@ -408,7 +454,7 @@ Flickable {
                                 }
 
                                 Label {
-                                    text: qsTr("Enter a custom resolution:")
+                                    text: qsTr("ใส่ความละเอียดที่ต้องการ:")
                                     font.bold: true
                                 }
 
@@ -538,7 +584,7 @@ Flickable {
                                 for (var i = 0; i < fpsListModel.count; i++) {
                                     if (fpsListModel.get(i).is_custom) {
                                         fpsListModel.setProperty(i, "video_fps", fps)
-                                        fpsListModel.setProperty(i, "text", qsTr("Custom (%1 FPS)").arg(fps))
+                                        fpsListModel.setProperty(i, "text", qsTr("กำหนดเอง (%1 FPS)").arg(fps))
 
                                         // Now update the bitrate using the custom resolution
                                         fpsComboBox.currentIndex = i
@@ -553,7 +599,7 @@ Flickable {
 
                             ColumnLayout {
                                 Label {
-                                    text: qsTr("Enter a custom frame rate:")
+                                    text: qsTr("ใส่เฟรมเรตที่ต้องการ:")
                                     font.bold: true
                                 }
 
@@ -648,10 +694,10 @@ Flickable {
 
                             // If we didn't find one, add a custom frame rate for the current value
                             if (!found) {
-                                currentIndex = addRefreshRateOrdered(model, saved_fps, qsTr("Custom (%1 FPS)").arg(saved_fps), true)
+                                currentIndex = addRefreshRateOrdered(model, saved_fps, qsTr("กำหนดเอง (%1 FPS)").arg(saved_fps), true)
                             }
                             else {
-                                addRefreshRateOrdered(model, "", qsTr("Custom"), true)
+                                addRefreshRateOrdered(model, "", qsTr("กำหนดเอง"), true)
                             }
 
                             recalculateWidth()
@@ -698,7 +744,7 @@ Flickable {
                 Label {
                     width: parent.width
                     id: bitrateTitle
-                    text: qsTr("Video bitrate:")
+                    text: qsTr("บิตเรตวิดีโอ:")
                     font.pointSize: 12
                     wrapMode: Text.Wrap
                 }
@@ -706,7 +752,7 @@ Flickable {
                 Label {
                     width: parent.width
                     id: bitrateDesc
-                    text: qsTr("Lower the bitrate on slower connections. Raise the bitrate to increase image quality.")
+                    text: qsTr("ลดบิตเรตหากเน็ตช้า เพิ่มบิตเรตเพื่อให้ภาพชัดขึ้น")
                     font.pointSize: 9
                     wrapMode: Text.Wrap
                 }
@@ -771,9 +817,9 @@ Flickable {
                             // 根据条件格式化显示文本
                             var displayValue = linearValue / 1000.0;
                             if (displayValue < 100) {
-                                bitrateTitle.text = qsTr("Video bitrate: %1 Mbps").arg(displayValue.toFixed(1))
+                                bitrateTitle.text = qsTr("บิตเรตวิดีโอ: %1 Mbps").arg(displayValue.toFixed(1))
                             } else {
-                                bitrateTitle.text = qsTr("Video bitrate: %1 Mbps").arg(Math.round(displayValue))
+                                bitrateTitle.text = qsTr("บิตเรตวิดีโอ: %1 Mbps").arg(Math.round(displayValue))
                             }
 
                             StreamingPreferences.bitrateKbps = linearValue
@@ -792,7 +838,7 @@ Flickable {
                 
                 Button {
                     id: resetBitrateButton
-                    text: qsTr("Use Default (%1 Mbps)").arg(StreamingPreferences.getDefaultBitrate(StreamingPreferences.width, StreamingPreferences.height, StreamingPreferences.fps, StreamingPreferences.enableYUV444) / 1000.0)
+                    text: qsTr("ใช้ค่าเริ่มต้น (%1 Mbps)").arg(StreamingPreferences.getDefaultBitrate(StreamingPreferences.width, StreamingPreferences.height, StreamingPreferences.fps, StreamingPreferences.enableYUV444) / 1000.0)
                     visible: StreamingPreferences.bitrateKbps !== StreamingPreferences.getDefaultBitrate(StreamingPreferences.width, StreamingPreferences.height, StreamingPreferences.fps, StreamingPreferences.enableYUV444)
                     onClicked: {
                         var defaultBitrate = StreamingPreferences.getDefaultBitrate(StreamingPreferences.width, StreamingPreferences.height, StreamingPreferences.fps, StreamingPreferences.enableYUV444)
@@ -807,7 +853,7 @@ Flickable {
                 Label {
                     width: parent.width
                     id: windowModeTitle
-                    text: qsTr("Display mode")
+                    text: qsTr("โหมดแสดงผล")
                     font.pointSize: 12
                     wrapMode: Text.Wrap
                     visible: SystemProperties.hasDesktopEnvironment
@@ -818,17 +864,17 @@ Flickable {
                         var model = Qt.createQmlObject('import QtQuick 2.0; ListModel {}', parent, '')
 
                         model.append({
-                                         text: qsTr("Fullscreen"),
+                                         text: qsTr("เต็มจอ"),
                                          val: StreamingPreferences.WM_FULLSCREEN
                                      })
 
                         model.append({
-                                         text: qsTr("Borderless windowed"),
+                                         text: qsTr("เต็มจอแบบไร้ขอบ"),
                                          val: StreamingPreferences.WM_FULLSCREEN_DESKTOP
                                      })
 
                         model.append({
-                                         text: qsTr("Windowed"),
+                                         text: qsTr("แบบหน้าต่าง"),
                                          val: StreamingPreferences.WM_WINDOWED
                                      })
 
@@ -894,7 +940,7 @@ Flickable {
                     id: vsyncCheck
                     width: parent.width
                     hoverEnabled: true
-                    text: qsTr("V-Sync")
+                    text: qsTr("ซิงค์แนวตั้ง (V-Sync)")
                     font.pointSize:  12
                     checked: StreamingPreferences.enableVsync
                     onCheckedChanged: {
@@ -904,14 +950,14 @@ Flickable {
                     ToolTip.delay: 1000
                     ToolTip.timeout: 5000
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Disabling V-Sync allows sub-frame rendering latency, but it can display visible tearing")
+                    ToolTip.text: qsTr("การปิด V-Sync จะลดความหน่วง แต่อาจทำให้ภาพฉีกขาด")
                 }
 
                 CheckBox {
                     id: framePacingCheck
                     width: parent.width
                     hoverEnabled: true
-                    text: qsTr("Frame pacing")
+                    text: qsTr("ควบคุมระยะเวลาของเฟรม (Frame pacing)")
                     font.pointSize:  12
                     enabled: StreamingPreferences.enableVsync
                     checked: StreamingPreferences.enableVsync && StreamingPreferences.framePacing
@@ -921,7 +967,7 @@ Flickable {
                     ToolTip.delay: 1000
                     ToolTip.timeout: 5000
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Frame pacing reduces micro-stutter by delaying frames that come in too early")
+                    ToolTip.text: qsTr("ลดอาการกระตุกเล็กน้อยโดยการชะลอเฟรมที่มาเร็วเกินไป")
                 }
 
                 CheckBox {
@@ -1058,9 +1104,10 @@ Flickable {
 
         GroupBox {
             id: audioSettingsGroupBox
+        visible: settingsPage.currentTab === 1
             width: (parent.width - (parent.leftPadding + parent.rightPadding))
             padding: 12
-            title: "<b><font color=\"#FFA5D2\">🎵 " + qsTr("Audio Settings") + "</font></b>"
+            title: "<b><font color=\"#FFA5D2\">🎵 " + qsTr("ตั้งค่าเสียงและไมค์") + "</font></b>"
             font {
                 family: "YouYuan"
                 bold: true
@@ -1074,7 +1121,7 @@ Flickable {
                 Label {
                     width: parent.width
                     id: resAudioTitle
-                    text: qsTr("Audio configuration")
+                    text: qsTr("การตั้งค่าระบบเสียง")
                     font.pointSize: 12
                     wrapMode: Text.Wrap
                 }
@@ -1099,15 +1146,15 @@ Flickable {
                     model: ListModel {
                         id: audioListModel
                         ListElement {
-                            text: qsTr("Stereo")
+                            text: qsTr("สเตอริโอ")
                             val: StreamingPreferences.AC_STEREO
                         }
                         ListElement {
-                            text: qsTr("5.1 surround sound")
+                            text: qsTr("เสียงรอบทิศทาง 5.1")
                             val: StreamingPreferences.AC_51_SURROUND
                         }
                         ListElement {
-                            text: qsTr("7.1 surround sound")
+                            text: qsTr("เสียงรอบทิศทาง 7.1")
                             val: StreamingPreferences.AC_71_SURROUND
                         }
                     }
@@ -1121,7 +1168,7 @@ Flickable {
                 CheckBox {
                     id: audioPcCheck
                     width: parent.width
-                    text: qsTr("Mute host PC speakers while streaming")
+                    text: qsTr("ปิดเสียงลำโพงคอมพิวเตอร์แม่ข่ายขณะสตรีม")
                     font.pointSize: 12
                     checked: !StreamingPreferences.playAudioOnHost
                     onCheckedChanged: {
@@ -1153,7 +1200,7 @@ Flickable {
 
                 Label {
                     width: parent.width
-                    text: qsTr("Microphone selection")
+                    text: qsTr("เลือกไมโครโฟน")
                     font.pointSize: 12
                     wrapMode: Text.Wrap
                 }
@@ -1169,7 +1216,7 @@ Flickable {
 
                 Label {
                     width: parent.width
-                    text: qsTr("Microphone Boost: ") + MicManager.boostLevel + "%"
+                    text: qsTr("เพิ่มระดับเสียงไมค์: ") + MicManager.boostLevel + "%"
                     font.pointSize: 12
                     wrapMode: Text.Wrap
                 }
@@ -1188,7 +1235,7 @@ Flickable {
 
                 Label {
                     width: parent.width
-                    text: qsTr("Mic Boost Shortcut Keys (1-4 pressed simultaneously during stream)")
+                    text: qsTr("ปุ่มลัดเร่งเสียงไมค์ (1-4 ปุ่มพร้อมกัน)")
                     font.pointSize: 12
                     wrapMode: Text.Wrap
                 }
@@ -1207,9 +1254,10 @@ Flickable {
 
         GroupBox {
             id: hostSettingsGroupBox
+        visible: settingsPage.currentTab === 3
             width: (parent.width - (parent.leftPadding + parent.rightPadding))
             padding: 12
-            title: "<b><font color=\"#FFA5D2\">🖥️ " + qsTr("Host Settings") + "</font></b>"
+            title: "<b><font color=\"#FFA5D2\">🖥️ " + qsTr("ตั้งค่าฝั่งแม่ข่าย") + "</font></b>"
             font {
                 family: "YouYuan"
                 bold: true
@@ -1282,7 +1330,7 @@ Flickable {
                 CheckBox {
                     id: optimizeGameSettingsCheck
                     width: parent.width
-                    text: qsTr("Optimize game settings for streaming")
+                    text: qsTr("ปรับแต่งเกมให้เหมาะกับการสตรีม")
                     font.pointSize:  12
                     checked: StreamingPreferences.gameOptimizations
                     onCheckedChanged: {
@@ -1293,7 +1341,7 @@ Flickable {
                 CheckBox {
                     id: quitAppAfter
                     width: parent.width
-                    text: qsTr("Quit app on host PC after ending stream")
+                    text: qsTr("ปิดเกมบนแม่ข่ายหลังจากหยุดสตรีม")
                     font.pointSize: 12
                     checked: StreamingPreferences.quitAppAfter
                     onCheckedChanged: {
@@ -1303,16 +1351,39 @@ Flickable {
                     ToolTip.delay: 1000
                     ToolTip.timeout: 5000
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("This will close the app or game you are streaming when you end your stream. You will lose any unsaved progress!")
+                    ToolTip.text: qsTr("แอปหรือเกมจะถูกปิดเมื่อหยุดสตรีม คุณอาจสูญเสียข้อมูลที่ยังไม่ได้บันทึก!")
                 }
             }
         }
 
         GroupBox {
             id: uiSettingsGroupBox
+        visible: settingsPage.currentTab === 0\n
+                Label {
+                    width: parent.width
+                    text: qsTr("สไตล์ภาพพื้นหลัง (Background)")
+                    font.pointSize: 12
+                    wrapMode: Text.Wrap
+                }
+
+                Row {
+                    spacing: 5
+                    width: parent.width
+
+                    ComboBox {
+                        id: bgStyleComboBox
+                        width: parent.width
+                        model: ["ภาพ Anime (สุ่มเปลี่ยนอัตโนมัติ)", "ใช้ภาพกำหนดเอง (สีเรียบ หรือลากวาง)"]
+                        currentIndex: StreamingPreferences.useAnimeBackground ? 0 : 1
+                        onActivated: {
+                            StreamingPreferences.useAnimeBackground = (currentIndex === 0)
+                        }
+                    }
+                }
+
             width: (parent.width - (parent.leftPadding + parent.rightPadding))
             padding: 12
-            title: "<b><font color=\"#FFA5D2\">🎨 " + qsTr("UI Settings") + "</font></b>"
+            title: "<b><font color=\"#FFA5D2\">🎨 " + qsTr("ตั้งค่าส่วนติดต่อผู้ใช้ (UI)") + "</font></b>"
             font {
                 family: "YouYuan"
                 bold: true
@@ -1326,7 +1397,7 @@ Flickable {
                 Label {
                     width: parent.width
                     id: languageTitle
-                    text: qsTr("Language")
+                    text: qsTr("ภาษา")
                     font.pointSize: 12
                     wrapMode: Text.Wrap
                 }
@@ -1352,7 +1423,7 @@ Flickable {
                     model: ListModel {
                         id: languageListModel
                         ListElement {
-                            text: qsTr("Automatic")
+                            text: qsTr("อัตโนมัติ")
                             val: StreamingPreferences.LANG_AUTO
                         }
                         ListElement {
@@ -1487,7 +1558,7 @@ Flickable {
                         if (StreamingPreferences.language !== new_language) {
                             StreamingPreferences.language = languageListModel.get(currentIndex).val
                             if (!StreamingPreferences.retranslate()) {
-                                ToolTip.show(qsTr("You must restart Moonlight for this change to take effect"), 5000)
+                                ToolTip.show(qsTr("คุณต้องรีสตาร์ท Moonlight เพื่อให้การเปลี่ยนแปลงมีผล"), 5000)
                             }
                             else {
                                 // Force the back operation to pop any AppView pages that exist.
@@ -1537,7 +1608,7 @@ Flickable {
                     model: ListModel {
                         id: uiDisplayModeListModel
                         ListElement {
-                            text: qsTr("Windowed")
+                            text: qsTr("แบบหน้าต่าง")
                             val: StreamingPreferences.UI_WINDOWED
                         }
                         ListElement {
@@ -1545,7 +1616,7 @@ Flickable {
                             val: StreamingPreferences.UI_MAXIMIZED
                         }   
                         ListElement {
-                            text: qsTr("Fullscreen")
+                            text: qsTr("เต็มจอ")
                             val: StreamingPreferences.UI_FULLSCREEN
                         }
                     }
@@ -1558,7 +1629,7 @@ Flickable {
                 CheckBox {
                     id: connectionWarningsCheck
                     width: parent.width
-                    text: qsTr("Show connection quality warnings")
+                    text: qsTr("แสดงคำเตือนคุณภาพการเชื่อมต่อ")
                     font.pointSize: 12
                     checked: StreamingPreferences.connectionWarnings
                     onCheckedChanged: {
@@ -1570,7 +1641,7 @@ Flickable {
                     visible: SystemProperties.hasDiscordIntegration
                     id: discordPresenceCheck
                     width: parent.width
-                    text: qsTr("Discord Rich Presence integration")
+                    text: qsTr("เชื่อมต่อกับ Discord Rich Presence")
                     font.pointSize: 12
                     checked: StreamingPreferences.richPresence
                     onCheckedChanged: {
@@ -1586,7 +1657,7 @@ Flickable {
                 CheckBox {
                     id: keepAwakeCheck
                     width: parent.width
-                    text: qsTr("Keep the display awake while streaming")
+                    text: qsTr("ป้องกันไม่ให้หน้าจอดับขณะสตรีม")
                     font.pointSize: 12
                     checked: StreamingPreferences.keepAwake
                     onCheckedChanged: {
@@ -1605,16 +1676,17 @@ Flickable {
     Column {
         padding: 10
         rightPadding: 20
-        anchors.left: settingsColumn1.right
-        id: settingsColumn2
-        width: settingsPage.width / 2
+        
+        id: settingsColumn2\n        anchors.top: tabRowContainer.bottom\n        anchors.left: parent.left\n        anchors.right: parent.right
+        width: settingsPage.width - 40
         spacing: 15
 
         GroupBox {
             id: inputSettingsGroupBox
+        visible: settingsPage.currentTab === 2
             width: (parent.width - (parent.leftPadding + parent.rightPadding))
             padding: 12
-            title: "<b><font color=\"#FFA5D2\">⌨️ " + qsTr("Input Settings") + "</font></b>"
+            title: "<b><font color=\"#FFA5D2\">⌨️ " + qsTr("ตั้งค่าการควบคุม") + "</font></b>"
             font {
                 family: "YouYuan"
                 bold: true
@@ -1629,7 +1701,7 @@ Flickable {
                     id: absoluteMouseCheck
                     hoverEnabled: true
                     width: parent.width
-                    text: qsTr("Optimize mouse for remote desktop instead of games")
+                    text: qsTr("ปรับเมาส์สำหรับรีโมทเดสก์ท็อปแทนการเล่นเกม")
                     font.pointSize:  12
                     checked: StreamingPreferences.absoluteMouseMode
                     onCheckedChanged: {
@@ -1669,7 +1741,7 @@ Flickable {
                     CheckBox {
                         id: captureSysKeysCheck
                         hoverEnabled: true
-                        text: qsTr("Capture system keyboard shortcuts")
+                        text: qsTr("จับการกดปุ่มลัดของระบบ (เช่น Alt+Tab)")
                         font.pointSize: 12
                         enabled: SystemProperties.hasDesktopEnvironment
                         checked: StreamingPreferences.captureSysKeysMode !== StreamingPreferences.CSK_OFF || !SystemProperties.hasDesktopEnvironment
@@ -1758,7 +1830,7 @@ Flickable {
                     id: swapMouseButtonsCheck
                     hoverEnabled: true
                     width: parent.width
-                    text: qsTr("Swap left and right mouse buttons")
+                    text: qsTr("สลับปุ่มเมาส์ซ้าย-ขวา")
                     font.pointSize:  12
                     checked: StreamingPreferences.swapMouseButtons
                     onCheckedChanged: {
@@ -1770,7 +1842,7 @@ Flickable {
                     id: swapWinAltKeysCheck
                     hoverEnabled: true
                     width: parent.width
-                    text: qsTr("Swap Alt and Win keys")
+                    text: qsTr("สลับปุ่ม Alt และ Win")
                     font.pointSize:  12
                     checked: StreamingPreferences.swapWinAltKeys
                     onCheckedChanged: {
@@ -1782,7 +1854,7 @@ Flickable {
                     id: reverseScrollButtonsCheck
                     hoverEnabled: true
                     width: parent.width
-                    text: qsTr("Reverse mouse scrolling direction")
+                    text: qsTr("สลับทิศทางการเลื่อนเมาส์")
                     font.pointSize: 12
                     checked: StreamingPreferences.reverseScrollDirection
                     onCheckedChanged: {
@@ -1794,9 +1866,10 @@ Flickable {
 
         GroupBox {
             id: gamepadSettingsGroupBox
+        visible: settingsPage.currentTab === 2
             width: (parent.width - (parent.leftPadding + parent.rightPadding))
             padding: 12
-            title: "<b><font color=\"#FFA5D2\">🎮 " + qsTr("Gamepad Settings") + "</font></b>"
+            title: "<b><font color=\"#FFA5D2\">🎮 " + qsTr("ตั้งค่าจอยสติ๊ก") + "</font></b>"
             font {
                 family: "YouYuan"
                 bold: true
@@ -1810,7 +1883,7 @@ Flickable {
                 CheckBox {
                     id: swapFaceButtonsCheck
                     width: parent.width
-                    text: qsTr("Swap A/B and X/Y gamepad buttons")
+                    text: qsTr("สลับปุ่ม A/B และ X/Y")
                     font.pointSize: 12
                     checked: StreamingPreferences.swapFaceButtons
                     onCheckedChanged: {
@@ -1826,7 +1899,7 @@ Flickable {
                 CheckBox {
                     id: singleControllerCheck
                     width: parent.width
-                    text: qsTr("Force gamepad #1 always connected")
+                    text: qsTr("บังคับให้จอยสติ๊กตัวที่ 1 เชื่อมต่อตลอดเวลา")
                     font.pointSize:  12
                     checked: !StreamingPreferences.multiController
                     onCheckedChanged: {
@@ -1855,7 +1928,7 @@ Flickable {
                 CheckBox {
                     id: backgroundGamepadCheck
                     width: parent.width
-                    text: qsTr("Process gamepad input when Moonlight is in the background")
+                    text: qsTr("รับคำสั่งจอยสติ๊กแม้ Moonlight ไม่ได้อยู่หน้าแรก")
                     font.pointSize: 12
                     visible: SystemProperties.hasDesktopEnvironment
                     checked: StreamingPreferences.backgroundGamepad
@@ -1873,9 +1946,10 @@ Flickable {
 
         GroupBox {
             id: advancedSettingsGroupBox
+        visible: settingsPage.currentTab === 4
             width: (parent.width - (parent.leftPadding + parent.rightPadding))
             padding: 12
-            title: "<b><font color=\"#FFA5D2\">⚗️ " + qsTr("Advanced Settings") + "</font></b>"
+            title: "<b><font color=\"#FFA5D2\">⚗️ " + qsTr("ตั้งค่าขั้นสูง") + "</font></b>"
             font {
                 family: "YouYuan"
                 bold: true
@@ -1889,7 +1963,7 @@ Flickable {
                 Label {
                     width: parent.width
                     id: resVDSTitle
-                    text: qsTr("Video decoder")
+                    text: qsTr("ตัวถอดรหัสวิดีโอ")
                     font.pointSize: 12
                     wrapMode: Text.Wrap
                 }
@@ -1918,11 +1992,11 @@ Flickable {
                             val: StreamingPreferences.VDS_AUTO
                         }
                         ListElement {
-                            text: qsTr("Force software decoding")
+                            text: qsTr("บังคับใช้ซอฟต์แวร์ถอดรหัส")
                             val: StreamingPreferences.VDS_FORCE_SOFTWARE
                         }
                         ListElement {
-                            text: qsTr("Force hardware decoding")
+                            text: qsTr("บังคับใช้ฮาร์ดแวร์ถอดรหัส")
                             val: StreamingPreferences.VDS_FORCE_HARDWARE
                         }
                     }
@@ -1947,7 +2021,7 @@ Flickable {
                 Label {
                     width: parent.width
                     id: resVCCTitle
-                    text: qsTr("Video codec")
+                    text: qsTr("ตัวแปลงสัญญาณวิดีโอ (Codec)")
                     font.pointSize: 12
                     wrapMode: Text.Wrap
                 }
@@ -2004,7 +2078,7 @@ Flickable {
                 CheckBox {
                     id: enableHdr
                     width: parent.width
-                    text: qsTr("Enable HDR (Experimental)")
+                    text: qsTr("เปิดใช้งาน HDR (ทดลอง)")
                     font.pointSize: 12
 
                     enabled: SystemProperties.supportsHdr
@@ -2057,7 +2131,7 @@ Flickable {
                 CheckBox {
                     id: unlockBitrate
                     width: parent.width
-                    text: qsTr("Unlock bitrate limit (Experimental)")
+                    text: qsTr("ปลดล็อกขีดจำกัดบิตเรต (ทดลอง)")
                     font.pointSize: 12
 
                     checked: StreamingPreferences.unlockBitrate
@@ -2108,7 +2182,7 @@ Flickable {
                 CheckBox {
                     id: showPerformanceOverlay
                     width: parent.width
-                    text: qsTr("Show performance stats while streaming")
+                    text: qsTr("แสดงข้อมูลสถิติประสิทธิภาพขณะสตรีม")
                     font.pointSize: 12
                     checked: StreamingPreferences.showPerformanceOverlay
                     onCheckedChanged: {

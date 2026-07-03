@@ -544,6 +544,13 @@ CenteredGridView {
         }
         
         Component.onCompleted: {
+            if (!StreamingPreferences.useAnimeBackground) {
+                source = StreamingPreferences.backgroundUrl;
+                currentImageUrl = StreamingPreferences.backgroundUrl;
+                pcGrid.currentBgUrl = StreamingPreferences.backgroundUrl;
+                return;
+            }
+
             // 先检查缓存图是否存在
             if (settings.cachedImagePath && imageUtils.fileExists(settings.cachedImagePath)) {
                 try {

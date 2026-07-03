@@ -58,6 +58,8 @@
 #define SER_KEEPAWAKE "keepawake"
 #define SER_LANGUAGE "language"
 #define SER_CUSTOMSCREENMODE "customscreenmode"
+#define SER_BACKGROUNDURL "backgroundurl"
+#define SER_USEANIMEBACKGROUND "useanimebackground"
 #define SER_SHOWLOCALCURSOR "showLocalCursor"
 
 #define CURRENT_DEFAULT_VER 2
@@ -183,6 +185,8 @@ void StreamingPreferences::reload()
     language = static_cast<Language>(settings.value(SER_LANGUAGE,
                                                     static_cast<int>(Language::LANG_AUTO)).toInt());
     customScreenMode = settings.value(SER_CUSTOMSCREENMODE, -1).toInt();
+    backgroundUrl = settings.value(SER_BACKGROUNDURL, "qrc:/res/gura.png").toString();
+    useAnimeBackground = settings.value(SER_USEANIMEBACKGROUND, true).toBool();
 
     // Perform default settings updates as required based on last default version
     if (defaultVer < 1) {
@@ -380,6 +384,8 @@ void StreamingPreferences::save()
     settings.setValue(SER_CAPTURESYSKEYS, captureSysKeysMode);
     settings.setValue(SER_KEEPAWAKE, keepAwake);
     settings.setValue(SER_CUSTOMSCREENMODE, customScreenMode);
+    settings.setValue(SER_BACKGROUNDURL, backgroundUrl);
+    settings.setValue(SER_USEANIMEBACKGROUND, useAnimeBackground);
 }
 
 int StreamingPreferences::getDefaultBitrate(int width, int height, int fps, bool yuv444)

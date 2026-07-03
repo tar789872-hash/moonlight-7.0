@@ -153,6 +153,8 @@ public:
     Q_PROPERTY(CaptureSysKeysMode captureSysKeysMode MEMBER captureSysKeysMode NOTIFY captureSysKeysModeChanged)
     Q_PROPERTY(Language language MEMBER language NOTIFY languageChanged)
     Q_PROPERTY(int customScreenMode MEMBER customScreenMode NOTIFY customScreenModeChanged)
+    Q_PROPERTY(QString backgroundUrl MEMBER backgroundUrl NOTIFY backgroundUrlChanged)
+    Q_PROPERTY(bool useAnimeBackground MEMBER useAnimeBackground NOTIFY useAnimeBackgroundChanged)
 
     Q_INVOKABLE bool retranslate();
 
@@ -203,6 +205,8 @@ public:
     Language language;
     CaptureSysKeysMode captureSysKeysMode;
     int customScreenMode;
+    QString backgroundUrl;
+    bool useAnimeBackground;
 
 signals:
     void displayModeChanged();
@@ -248,6 +252,8 @@ signals:
     void keepAwakeChanged();
     void languageChanged();
     void customScreenModeChanged();
+    void backgroundUrlChanged();
+    void useAnimeBackgroundChanged();
 
 private:
     explicit StreamingPreferences(QQmlEngine *qmlEngine);
