@@ -1150,6 +1150,58 @@ Flickable {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Mutes Moonlight's audio when you Alt+Tab out of the stream or click on a different window.")
                 }
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Microphone selection")
+                    font.pointSize: 12
+                    wrapMode: Text.Wrap
+                }
+
+                AutoResizingComboBox {
+                    id: micComboBox
+                    model: MicManager.availableMics
+                    currentIndex: MicManager.currentMicIndex
+                    onActivated: {
+                        MicManager.currentMicIndex = currentIndex
+                    }
+                }
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Microphone Boost: ") + MicManager.boostLevel + "%"
+                    font.pointSize: 12
+                    wrapMode: Text.Wrap
+                }
+
+                Slider {
+                    id: micBoostSlider
+                    width: parent.width
+                    from: 0
+                    to: 200
+                    stepSize: 10
+                    value: MicManager.boostLevel
+                    onValueChanged: {
+                        MicManager.boostLevel = value
+                    }
+                }
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Mic Boost Shortcut Keys (1-4 pressed simultaneously during stream)")
+                    font.pointSize: 12
+                    wrapMode: Text.Wrap
+                }
+
+                SpinBox {
+                    id: micShortcutKeys
+                    from: 1
+                    to: 4
+                    value: MicManager.shortcutKeys
+                    onValueChanged: {
+                        MicManager.shortcutKeys = value
+                    }
+                }
             }
         }
 

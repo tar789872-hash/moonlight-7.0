@@ -1,4 +1,5 @@
 #include "streaming/session.h"
+#include "../audio/audiocapture.h"
 
 #include <Limelight.h>
 #include "SDL_compat.h"
@@ -169,6 +170,27 @@ void SdlInputHandler::handleKeyEvent(SDL_KeyboardEvent* event)
         // Ignore repeat key down events
         SDL_assert(event->state == SDL_PRESSED);
         return;
+    }
+
+    // Check for Microphone Boost Custom Shortcut (1-4 keys)
+    int reqKeys = MicManager::instance()->shortcutKeys();
+    if (event->state == SDL_PRESSED && event->keysym.sym == SDLK_m) {
+        Uint16 modMask = event->keysym.mod & (KMOD_CTRL | KMOD_ALT | KMOD_SHIFT);
+        bool match = false;
+        if (reqKeys == 1 && modMask == 0) match = true;
+        else if (reqKeys == 2 && modMask == KMOD_CTRL) match = true;
+        else if (reqKeys == 3 && modMask == (KMOD_CTRL | KMOD_ALT)) match = true;
+        else if (reqKeys == 4 && modMask == (KMOD_CTRL | KMOD_ALT | KMOD_SHIFT)) match = true;
+
+        if (match) {
+            int boost = MicManager::instance()->boostLevel();
+            boost = (boost + 10 > 200) ? 0 : boost + 10;
+            MicManager::instance()->setBoostLevel(boost);
+            if (Session::s_ActiveSession) {
+                Session::s_ActiveSession->getOverlayManager().showOverlayMessage(QString("Mic Boost: %1%").arg(boost));
+            }
+            return;
+        }
     }
 
     // Check for our special key combos

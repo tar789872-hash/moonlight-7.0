@@ -46,6 +46,7 @@
 #include "backend/systemproperties.h"
 #include "streaming/session.h"
 #include "settings/streamingpreferences.h"
+#include "streaming/audio/audiocapture.h"
 #include "gui/sdlgamepadkeynavigation.h"
 #include "imageutils.h"
 
@@ -721,6 +722,10 @@ int main(int argc, char *argv[])
                                                    [](QQmlEngine* qmlEngine, QJSEngine*) -> QObject* {
                                                        return StreamingPreferences::get(qmlEngine);
                                                    });
+    qmlRegisterSingletonType<MicManager>("MicManager", 1, 0, "MicManager",
+                                         [](QQmlEngine*, QJSEngine*) -> QObject* {
+                                             return MicManager::instance();
+                                         });
     qmlRegisterType<ImageUtils>("ImageUtils", 1, 0, "ImageUtils");
 
     // Create the identity manager on the main thread
