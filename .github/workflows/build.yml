@@ -128,7 +128,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Moonlight-${{ matrix.arch }}-r${{ env.BUILD_NUMBER }}.exe
-        path: build/installer-Release/MoonlightSetup-*.exe
+        path: build/installer-release/moonlight-setup-7.0.exe
 
   build-macos:
     runs-on: macos-14
