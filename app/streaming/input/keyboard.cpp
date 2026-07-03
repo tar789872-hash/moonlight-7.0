@@ -187,7 +187,9 @@ void SdlInputHandler::handleKeyEvent(SDL_KeyboardEvent* event)
             boost = (boost + 10 > 200) ? 0 : boost + 10;
             MicManager::instance()->setBoostLevel(boost);
             if (Session::s_ActiveSession) {
-                Session::s_ActiveSession->getOverlayManager().showOverlayMessage(QString("Mic Boost: %1%").arg(boost));
+                QString msg = QString("Mic Boost: %1%").arg(boost);
+                Session::s_ActiveSession->getOverlayManager().updateOverlayText(Overlay::OverlayStatusUpdate, msg.toUtf8().constData());
+                Session::s_ActiveSession->getOverlayManager().setOverlayState(Overlay::OverlayStatusUpdate, true);
             }
             return;
         }
