@@ -161,7 +161,7 @@ Flickable {
 
     Column {
         padding: 20
-        id: settingsColumn1\n        anchors.top: tabRowContainer.bottom\n        anchors.left: parent.left\n        anchors.right: parent.right
+        id: settingsColumn1
         anchors.top: tabRowContainer.bottom
         anchors.left: parent.left
         anchors.right: parent.right
@@ -1358,7 +1358,8 @@ Flickable {
 
         GroupBox {
             id: uiSettingsGroupBox
-        visible: settingsPage.currentTab === 0\n
+        visible: settingsPage.currentTab === 0
+
                 Label {
                     width: parent.width
                     text: qsTr("สไตล์ภาพพื้นหลัง (Background)")
@@ -1677,7 +1678,10 @@ Flickable {
         padding: 10
         rightPadding: 20
         
-        id: settingsColumn2\n        anchors.top: tabRowContainer.bottom\n        anchors.left: parent.left\n        anchors.right: parent.right
+        id: settingsColumn2
+        anchors.top: tabRowContainer.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
         width: settingsPage.width - 40
         spacing: 15
 
