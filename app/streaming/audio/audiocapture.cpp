@@ -1,11 +1,13 @@
 #include "audiocapture.h"
 #include <QDebug>
 
+#ifndef STEAM_LINK
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QAudioDeviceInfo>
 #else
 #include <QMediaDevices>
 #include <QAudioDevice>
+#endif
 #endif
 
 MicManager* MicManager::instance() {
@@ -16,6 +18,7 @@ MicManager* MicManager::instance() {
 MicManager::MicManager(QObject* parent) : QObject(parent), m_currentMicIndex(0), m_boostLevel(100), m_shortcutKeys(2) {
     m_availableMics.append("Default System Microphone");
 
+#ifndef STEAM_LINK
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const auto deviceInfos = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
     for (const QAudioDeviceInfo &deviceInfo : deviceInfos) {
@@ -30,6 +33,7 @@ MicManager::MicManager(QObject* parent) : QObject(parent), m_currentMicIndex(0),
             m_availableMics.append(deviceInfo.description());
         }
     }
+#endif
 #endif
 }
 

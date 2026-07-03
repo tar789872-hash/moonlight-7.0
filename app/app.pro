@@ -1,4 +1,5 @@
-QT += core quick network quickcontrols2 svg gui-private multimedia
+QT += core quick network quickcontrols2 svg gui-private
+!config_SL: QT += multimedia
 CONFIG += c++11
 
 unix:!macx {
