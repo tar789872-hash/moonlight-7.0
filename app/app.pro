@@ -582,6 +582,7 @@ unix:!macx: {
     INSTALLS += target desktop icons appstream
 }
 win32 {
+    QMAKE_CXXFLAGS += /utf-8
     RC_ICONS = moonlight.ico
     QMAKE_TARGET_COMPANY = Moonlight Game Streaming Project
     QMAKE_TARGET_DESCRIPTION = Moonlight Game Streaming Client
