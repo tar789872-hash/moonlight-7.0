@@ -77,7 +77,7 @@ jobs:
       run: |
         echo Configuring build environment for stability...
         rem Set environment variables for stable build
-        set CL=/MP2 /Zm500
+        set CL=/MP2 /Zm500 /utf-8
         set LINKER=/OPT:REF,ICF=5
         rem Disable incremental linking to reduce memory usage
         set LINK=/INCREMENTAL:NO
